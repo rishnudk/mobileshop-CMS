@@ -1,0 +1,16 @@
+{
+  "name": "mobileshop-cms-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"pnpm --filter @mobileshop/backend dev\" \"pnpm --filter @mobileshop/frontend dev\"",
+    "build": "pnpm -r build",
+    "lint": "pnpm -r lint",
+    "format": "prettier --write \"**/*.{ts,tsx,js,json,md}\""
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0",
+    "prettier": "^3.5.0",
+    "typescript": "^5.7.3"
+  }
+}

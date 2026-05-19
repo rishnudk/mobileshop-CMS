@@ -1,0 +1,69 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  ADMIN
+  STAFF
+  TECHNICIAN
+}
+
+model User {
+  id         String      @id @default(uuid())
+  name       String
+  email      String      @unique
+  password   String
+  role       Role        @default(STAFF)
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  complaints Complaint[] @relation("AssignedTechnician")
+
+  @@map("users")
+}
+
+enum ComplaintStatus {
+  PENDING
+  DIAGNOSING
+  REPAIRING
+  READY
+  DELIVERED
+  CANCELLED
+}
+
+model Complaint {
+  id                   String          @id @default(uuid())
+  complaintId          String          @unique // e.g. "RC-1001"
+  customerName         String          @map("customer_name")
+  customerPhone        String          @map("customer_phone")
+  deviceBrand          String          @map("device_brand")
+  deviceModel          String          @map("device_model")
+  imei                 String?
+  issueDescription     String          @map("issue_description")
+  status               ComplaintStatus @default(PENDING)
+  estimatedCost        Float           @default(0.0) @map("estimated_cost")
+  advancePaid          Float           @default(0.0) @map("advance_paid")
+  assignedTechnicianId String?         @map("assigned_technician_id")
+  assignedTechnician   User?           @relation("AssignedTechnician", fields: [assignedTechnicianId], references: [id], onDelete: SetNull)
+  createdAt            DateTime        @default(now()) @map("created_at")
+  updatedAt            DateTime        @updatedAt @map("updated_at")
+  logs                 ComplaintLog[]
+
+  @@map("complaints")
+}
+
+model ComplaintLog {
+  id          String          @id @default(uuid())
+  complaintId String          @map("complaint_id")
+  complaint   Complaint       @relation(fields: [complaintId], references: [id], onDelete: Cascade)
+  oldStatus   ComplaintStatus? @map("old_status")
+  newStatus   ComplaintStatus @map("new_status")
+  updatedBy   String          @map("updated_by") // user ID or name of the staff who updated it
+  createdAt   DateTime        @default(now()) @map("created_at")
+
+  @@map("complaint_logs")
+}
