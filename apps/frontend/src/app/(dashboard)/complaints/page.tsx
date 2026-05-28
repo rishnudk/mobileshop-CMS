@@ -1,30 +1,74 @@
-"use client";
+import { Plus, Search } from "lucide-react";
 
-import { ClipboardList, Plus } from "lucide-react";
+import { PageShell } from "@/components/dashboard/page-shell";
+import { StatusBadge } from "@/components/dashboard/status-badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { recentComplaints } from "@/lib/mock-data";
 
 export default function ComplaintsPage() {
   return (
-    <div className="space-y-6 font-sans">
-      <div className="flex flex-col justify-between space-y-4 md:flex-row md:items-center md:space-y-0">
-        <div>
-          <h1 className="text-xl font-bold text-white md:text-2xl">Complaints Queue</h1>
-          <p className="text-xs text-slate-400">View, register, and update device repair tickets</p>
-        </div>
-        <button className="flex items-center px-4 py-2 text-xs font-semibold text-white bg-primary rounded-lg shadow-lg hover:bg-primary/95 transition-all shadow-primary/25 cursor-pointer">
-          <Plus className="w-4 h-4 mr-1.5" />
-          Add Complaint
-        </button>
-      </div>
-
-      <div className="flex flex-col items-center justify-center p-12 text-center shadow-lg rounded-xl glass border-white/5 bg-slate-900/10 min-h-[300px]">
-        <div className="flex items-center justify-center w-12 h-12 mb-4 rounded-full bg-slate-800 text-slate-400 border border-white/10">
-          <ClipboardList className="w-5 h-5" />
-        </div>
-        <h3 className="text-base font-bold text-white">No active repairs recorded</h3>
-        <p className="max-w-xs mt-1.5 text-xs text-slate-400">
-          Begin by registering a new device complaint for incoming client items.
-        </p>
-      </div>
-    </div>
+    <PageShell
+      title="Complaints"
+      description="Static complaint queue designed around the MVP modules in the implementation plan."
+      actions={
+        <Button className="rounded-xl">
+          <Plus className="size-4" />
+          New complaint
+        </Button>
+      }
+    >
+      <Card className="rounded-3xl border-border/70 shadow-sm">
+        <CardHeader className="gap-4 md:flex-row md:items-end md:justify-between">
+          <div>
+            <CardTitle>Complaint queue</CardTitle>
+            <CardDescription>Search, assign, and monitor incoming device issues from one table.</CardDescription>
+          </div>
+          <div className="relative w-full max-w-sm">
+            <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Input className="pl-9" placeholder="Search by complaint ID, customer, or device" />
+          </div>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Complaint ID</TableHead>
+                <TableHead>Customer</TableHead>
+                <TableHead>Device</TableHead>
+                <TableHead>Issue</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Assigned technician</TableHead>
+                <TableHead>Created</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {recentComplaints.map((complaint) => (
+                <TableRow key={complaint.id}>
+                  <TableCell className="font-medium">{complaint.id}</TableCell>
+                  <TableCell>{complaint.customer}</TableCell>
+                  <TableCell>{complaint.device}</TableCell>
+                  <TableCell className="max-w-xs text-sm text-muted-foreground">{complaint.issue}</TableCell>
+                  <TableCell>
+                    <StatusBadge value={complaint.status} />
+                  </TableCell>
+                  <TableCell>{complaint.assignedTo}</TableCell>
+                  <TableCell>{complaint.createdAt}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+    </PageShell>
   );
 }
