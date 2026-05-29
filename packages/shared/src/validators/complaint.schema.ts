@@ -33,6 +33,23 @@ export const createComplaintSchema = z.object({
 
 export type CreateComplaintInput = z.infer<typeof createComplaintSchema>;
 
+export const createPartyComplaintSchema = z.object({
+  ownerName: z.string().min(1, "Owner name is required"),
+  ownerPhone: z.string().min(10, "Owner phone number must be at least 10 digits").max(15, "Owner phone number is too long"),
+  deviceBrand: z.string().min(1, "Device brand is required"),
+  deviceModel: z.string().min(1, "Device model is required"),
+  deviceColor: z.string().max(80, "Device color is too long").optional().nullable(),
+  imei: z.string().max(30, "IMEI is too long").optional().nullable(),
+  issueDescription: z.string().min(1, "Issue description is required"),
+  accessoriesReceived: z.string().max(500, "Accessories field is too long").optional().nullable(),
+  deviceCondition: z.string().max(500, "Condition note is too long").optional().nullable(),
+  estimatedCost: z.number().min(0, "Estimated cost must be 0 or greater").default(0),
+  advancePaid: z.number().min(0, "Advance paid must be 0 or greater").default(0),
+  assignedTechnicianId: z.string().optional().nullable(),
+});
+
+export type CreatePartyComplaintInput = z.infer<typeof createPartyComplaintSchema>;
+
 export const updateComplaintSchema = z.object({
   customerName: z.string().min(1, "Customer name is required").optional(),
   customerPhone: z.string().min(10).max(15).optional(),

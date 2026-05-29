@@ -2,14 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  LayoutDashboard,
-  MessageSquareWarning,
-  Settings,
-  ShieldCheck,
-  Users,
-  Wrench,
-} from "lucide-react";
+import { LayoutDashboard, MessageSquareWarning, Settings, ShieldCheck, Users, Wrench } from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
 import { NavSecondary } from "@/components/nav-secondary";
@@ -36,7 +29,7 @@ const navItems = [
     icon: MessageSquareWarning,
   },
   {
-    title: "Customers",
+    title: "Parties",
     url: "/customers",
     icon: Users,
   },
@@ -55,13 +48,16 @@ const secondaryItems = [
   },
 ];
 
-const user = {
-  name: "Aarav Menon",
-  email: "admin@mobileshopcms.com",
-  avatar: "",
-};
-
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function AppSidebar({
+  user,
+  ...props
+}: React.ComponentProps<typeof Sidebar> & {
+  user: {
+    name: string;
+    email: string;
+    avatar: string;
+  };
+}) {
   const pathname = usePathname();
 
   return (

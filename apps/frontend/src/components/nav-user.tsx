@@ -80,17 +80,13 @@ export function NavUser({
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem asChild>
-                <Link href="/dashboard">
-                  <UserRound className="size-4" />
-                  Profile
-                </Link>
+              <DropdownMenuItem render={<Link href="/dashboard" />}>
+                <UserRound className="size-4" />
+                Profile
               </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link href="/settings">
-                  <Settings className="size-4" />
-                  Settings
-                </Link>
+              <DropdownMenuItem render={<Link href="/settings" />}>
+                <Settings className="size-4" />
+                Settings
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <ShieldCheck className="size-4" />
@@ -98,11 +94,9 @@ export function NavUser({
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
-              <Link href="/login">
-                <LogOut className="size-4" />
-                Log out
-              </Link>
+            <DropdownMenuItem render={<Link href="/logout" />}>
+              <LogOut className="size-4" />
+              Log out
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

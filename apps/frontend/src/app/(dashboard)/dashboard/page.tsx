@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Activity, ArrowUpRight, ReceiptText, Users, Wrench } from "lucide-react";
 
 import { PageShell } from "@/components/dashboard/page-shell";
@@ -12,37 +13,74 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { overviewMetrics, recentComplaints } from "@/lib/mock-data";
+import { getComplaints, getParties } from "@/lib/backend";
+import { formatComplaintStatus, formatCurrency, formatDateTime } from "@/lib/format";
 
-const quickStats = [
-  {
-    title: "Complaint intake",
-    value: "24 today",
-    description: "Front desk registrations recorded since opening time.",
-    icon: ReceiptText,
-  },
-  {
-    title: "Repair throughput",
-    value: "17 closed",
-    description: "Completed jobs marked ready for pickup in the last 24 hours.",
-    icon: Wrench,
-  },
-  {
-    title: "Customer follow-ups",
-    value: "31 pending",
-    description: "Notifications and callbacks still waiting for an update.",
-    icon: Users,
-  },
-];
+export default async function DashboardPage() {
+  const [complaints, parties] = await Promise.all([getComplaints(), getParties()]);
 
-export default function DashboardPage() {
+  const openComplaints = complaints.filter((complaint) => !["DELIVERED", "CANCELLED"].includes(complaint.status));
+  const readyComplaints = complaints.filter((complaint) => complaint.status === "READY");
+  const activeShops = parties.filter((party) => party.type === "SHOP");
+  const estimatedRevenue = complaints.reduce((sum, complaint) => sum + complaint.estimatedCost, 0);
+  const advanceCollected = complaints.reduce((sum, complaint) => sum + complaint.advancePaid, 0);
+  const recentComplaints = complaints.slice(0, 5);
+
+  const overviewMetrics = [
+    {
+      title: "Open complaints",
+      value: String(openComplaints.length),
+      change: `${complaints.length} total recorded`,
+      detail: "All unresolved devices currently in the repair pipeline.",
+    },
+    {
+      title: "Ready for pickup",
+      value: String(readyComplaints.length),
+      change: `${complaints.filter((complaint) => complaint.status === "REPAIRING").length} still repairing`,
+      detail: "Completed repair jobs waiting for customer or shop collection.",
+    },
+    {
+      title: "Active parties",
+      value: String(parties.length),
+      change: `${activeShops.length} partner shops`,
+      detail: "Direct customers and partner shops currently tracked in the CMS.",
+    },
+    {
+      title: "Advance collected",
+      value: formatCurrency(advanceCollected),
+      change: `${formatCurrency(estimatedRevenue)} estimated revenue`,
+      detail: "Advance payments already received against registered repair jobs.",
+    },
+  ];
+
+  const quickStats = [
+    {
+      title: "Complaint intake",
+      value: `${complaints.length} jobs`,
+      description: "Total complaints recorded through the live backend workflow.",
+      icon: ReceiptText,
+    },
+    {
+      title: "Repair throughput",
+      value: `${complaints.filter((complaint) => complaint.status === "DELIVERED").length} delivered`,
+      description: "Jobs fully completed and handed over to the customer or partner shop.",
+      icon: Wrench,
+    },
+    {
+      title: "Partner accounts",
+      value: `${activeShops.length} shops`,
+      description: "Shop accounts currently sending devices into the repair process.",
+      icon: Users,
+    },
+  ];
+
   return (
     <PageShell
       title="Dashboard"
-      description="A high-level operational view of complaints, staff workload, and customer activity for the mobile repair shop."
+      description="A live operational view of complaints, partner shops, and money collected for the mobile repair shop."
       actions={
-        <Button className="rounded-xl">
-          View daily summary
+        <Button className="rounded-xl" render={<Link href="/complaints" />}>
+          View complaint queue
           <ArrowUpRight className="size-4" />
         </Button>
       }
@@ -66,31 +104,39 @@ export default function DashboardPage() {
         <Card className="rounded-3xl border-border/70 shadow-sm">
           <CardHeader>
             <CardTitle>Recent complaints</CardTitle>
-            <CardDescription>Static preview of the complaint list planned for the MVP workflow.</CardDescription>
+            <CardDescription>Fresh intake pulled directly from the backend complaint registry.</CardDescription>
           </CardHeader>
           <CardContent>
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>ID</TableHead>
-                  <TableHead>Customer</TableHead>
+                  <TableHead>Party</TableHead>
                   <TableHead>Device</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Assigned</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {recentComplaints.map((complaint) => (
-                  <TableRow key={complaint.id}>
-                    <TableCell className="font-medium">{complaint.id}</TableCell>
-                    <TableCell>{complaint.customer}</TableCell>
-                    <TableCell>{complaint.device}</TableCell>
-                    <TableCell>
-                      <StatusBadge value={complaint.status} />
+                {recentComplaints.length ? (
+                  recentComplaints.map((complaint) => (
+                    <TableRow key={complaint.id}>
+                      <TableCell className="font-medium">{complaint.complaintId}</TableCell>
+                      <TableCell>{complaint.party?.name ?? complaint.customerName}</TableCell>
+                      <TableCell>{[complaint.deviceBrand, complaint.deviceModel].join(" ")}</TableCell>
+                      <TableCell>
+                        <StatusBadge value={formatComplaintStatus(complaint.status)} />
+                      </TableCell>
+                      <TableCell>{complaint.assignedTechnician?.name ?? "Unassigned"}</TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={5} className="py-8 text-center text-muted-foreground">
+                      No complaints have been registered yet.
                     </TableCell>
-                    <TableCell>{complaint.assignedTo}</TableCell>
                   </TableRow>
-                ))}
+                )}
               </TableBody>
             </Table>
           </CardContent>
@@ -119,16 +165,12 @@ export default function DashboardPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-slate-50">
                 <Activity className="size-5" />
-                Next integration step
+                Live backend status
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3 text-sm leading-6 text-slate-300">
-              <p>
-                Connect these cards and tables to `/api/v1/dashboard` and `/api/v1/complaints` once the backend service layer is ready.
-              </p>
-              <p>
-                The current scaffold keeps the frontend aligned with the implementation plan without blocking backend progress.
-              </p>
+              <p>The dashboard is now using the real backend complaint and party data instead of mock records.</p>
+              <p>Latest sync time: {recentComplaints[0] ? formatDateTime(recentComplaints[0].updatedAt) : "No complaint activity yet"}.</p>
             </CardContent>
           </Card>
         </div>

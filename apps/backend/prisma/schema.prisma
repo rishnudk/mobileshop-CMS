@@ -13,6 +13,11 @@ enum Role {
   TECHNICIAN
 }
 
+enum PartyType {
+  INDIVIDUAL
+  SHOP
+}
+
 model User {
   id         String      @id @default(uuid())
   name       String
@@ -24,6 +29,22 @@ model User {
   complaints Complaint[] @relation("AssignedTechnician")
 
   @@map("users")
+}
+
+model Party {
+  id             String      @id @default(uuid())
+  type           PartyType   @default(INDIVIDUAL)
+  name           String
+  phone          String
+  alternatePhone String?     @map("alternate_phone")
+  address        String?
+  contactPerson  String?     @map("contact_person")
+  isActive       Boolean     @default(true) @map("is_active")
+  createdAt      DateTime    @default(now()) @map("created_at")
+  updatedAt      DateTime    @updatedAt @map("updated_at")
+  complaints     Complaint[]
+
+  @@map("parties")
 }
 
 enum ComplaintStatus {
@@ -38,12 +59,19 @@ enum ComplaintStatus {
 model Complaint {
   id                   String          @id @default(uuid())
   complaintId          String          @unique // e.g. "RC-1001"
+  partyId              String?         @map("party_id")
+  party                Party?          @relation(fields: [partyId], references: [id], onDelete: SetNull)
   customerName         String          @map("customer_name")
   customerPhone        String          @map("customer_phone")
+  ownerName            String?         @map("owner_name")
+  ownerPhone           String?         @map("owner_phone")
   deviceBrand          String          @map("device_brand")
   deviceModel          String          @map("device_model")
+  deviceColor          String?         @map("device_color")
   imei                 String?
   issueDescription     String          @map("issue_description")
+  accessoriesReceived  String?         @map("accessories_received")
+  deviceCondition      String?         @map("device_condition")
   status               ComplaintStatus @default(PENDING)
   estimatedCost        Float           @default(0.0) @map("estimated_cost")
   advancePaid          Float           @default(0.0) @map("advance_paid")

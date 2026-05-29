@@ -4,6 +4,8 @@ import helmet from "helmet";
 import morgan from "morgan";
 import compression from "compression";
 import authRoutes from "./modules/auth/auth.routes";
+import partyRoutes from "./modules/parties/party.routes";
+import complaintRoutes from "./modules/complaints/complaint.routes";
 import { errorMiddleware } from "./common/middleware/error.middleware";
 
 const app = express();
@@ -27,6 +29,8 @@ app.get("/health", (req, res) => {
 
 // App Router Registry
 app.use("/api/v1/auth", authRoutes);
+app.use("/api/v1/parties", partyRoutes);
+app.use("/api/v1/complaints", complaintRoutes);
 
 // Error Handling Middleware
 app.use(errorMiddleware);

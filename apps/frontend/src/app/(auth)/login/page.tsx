@@ -1,10 +1,9 @@
-import { ArrowRight, ShieldCheck } from "lucide-react";
+import { redirect } from "next/navigation";
+import { ShieldCheck } from "lucide-react";
 
-import { Button, buttonVariants } from "@/components/ui/button";
+import { LoginForm } from "@/components/forms/login-form";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
+import { getCurrentUser } from "@/lib/backend";
 
 const highlights = [
   "Track incoming repair complaints from one shared workspace.",
@@ -12,7 +11,13 @@ const highlights = [
   "Prepare the frontend for complaint workflows, search, and staffing modules.",
 ];
 
-export default function LoginPage() {
+export default async function LoginPage() {
+  const user = await getCurrentUser();
+
+  if (user) {
+    redirect("/dashboard");
+  }
+
   return (
     <main className="relative flex min-h-screen overflow-hidden bg-[radial-gradient(circle_at_top_left,_rgba(15,23,42,0.08),_transparent_35%),linear-gradient(180deg,_#f8fafc_0%,_#eef2f7_100%)]">
       <div className="absolute inset-x-0 top-0 h-48 bg-[linear-gradient(135deg,_rgba(15,23,42,0.12),_transparent)]" />
@@ -56,33 +61,9 @@ export default function LoginPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <form className="space-y-5">
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="admin@mobileshopcms.com"
-                    defaultValue="admin@mobileshopcms.com"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="password">Password</Label>
-                    <span className="text-xs text-slate-500">JWT login ready</span>
-                  </div>
-                  <Input id="password" type="password" placeholder="Enter your password" defaultValue="admin123" />
-                </div>
-                <Button
-                  render={<a href="/dashboard" />}
-                  className={cn(buttonVariants(), "h-11 w-full rounded-xl text-sm font-medium")}
-                >
-                  Continue to dashboard
-                  <ArrowRight className="size-4" />
-                </Button>
-              </form>
+              <LoginForm />
               <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-600">
-                Frontend-only scaffold for now. The screen is ready to connect to the planned `/api/v1/auth/login` backend flow.
+                This login now uses the live backend JWT flow and stores the session in a secure app cookie.
               </div>
             </CardContent>
           </Card>

@@ -23,6 +23,30 @@ export type CustomerItem = {
   lastVisit: string;
 };
 
+export type PartyItem = {
+  id: string;
+  type: "Individual" | "Shop";
+  name: string;
+  phone: string;
+  contactPerson?: string;
+  city: string;
+  activeComplaints: number;
+  outstanding: string;
+  lastVisit: string;
+};
+
+export type PartyComplaintItem = {
+  id: string;
+  ownerName: string;
+  ownerPhone: string;
+  device: string;
+  issue: string;
+  status: "Pending" | "In Progress" | "Waiting Parts" | "Completed";
+  advancePaid: string;
+  estimatedCost: string;
+  createdAt: string;
+};
+
 export type StaffItem = {
   name: string;
   role: string;
@@ -126,6 +150,82 @@ export const customers: CustomerItem[] = [
     lastVisit: "May 19, 2026",
   },
 ];
+
+export const parties: PartyItem[] = [
+  {
+    id: "party-priya-nair",
+    type: "Individual",
+    name: "Priya Nair",
+    phone: "+91 98765 21034",
+    city: "Bengaluru",
+    activeComplaints: 1,
+    outstanding: "Rs. 3,500",
+    lastVisit: "May 27, 2026",
+  },
+  {
+    id: "party-star-mobile-care",
+    type: "Shop",
+    name: "Star Mobile Care",
+    phone: "+91 98111 22233",
+    contactPerson: "Rakesh",
+    city: "Hyderabad",
+    activeComplaints: 2,
+    outstanding: "Rs. 8,400",
+    lastVisit: "May 28, 2026",
+  },
+  {
+    id: "party-fast-fix-mobiles",
+    type: "Shop",
+    name: "Fast Fix Mobiles",
+    phone: "+91 98220 56789",
+    contactPerson: "Fatima",
+    city: "Chennai",
+    activeComplaints: 0,
+    outstanding: "Rs. 0",
+    lastVisit: "May 19, 2026",
+  },
+];
+
+export const partyComplaints: Record<string, PartyComplaintItem[]> = {
+  "party-priya-nair": [
+    {
+      id: "CMP-2001",
+      ownerName: "Priya Nair",
+      ownerPhone: "+91 98765 21034",
+      device: "iPhone 13 - Midnight",
+      issue: "Display flicker after accidental drop",
+      status: "In Progress",
+      advancePaid: "Rs. 1,000",
+      estimatedCost: "Rs. 4,500",
+      createdAt: "Today, 10:15 AM",
+    },
+  ],
+  "party-star-mobile-care": [
+    {
+      id: "CMP-2002",
+      ownerName: "Anil Kumar",
+      ownerPhone: "+91 99123 45678",
+      device: "Samsung Galaxy S22 - Black",
+      issue: "Battery drains within 2 hours",
+      status: "Waiting Parts",
+      advancePaid: "Rs. 0",
+      estimatedCost: "Rs. 2,800",
+      createdAt: "Today, 09:10 AM",
+    },
+    {
+      id: "CMP-2003",
+      ownerName: "Megha Reddy",
+      ownerPhone: "+91 99490 11223",
+      device: "OnePlus 11R - Blue",
+      issue: "Charging port loose connection",
+      status: "Pending",
+      advancePaid: "Rs. 500",
+      estimatedCost: "Rs. 1,800",
+      createdAt: "Yesterday, 06:40 PM",
+    },
+  ],
+  "party-fast-fix-mobiles": [],
+};
 
 export const staffMembers: StaffItem[] = [
   {

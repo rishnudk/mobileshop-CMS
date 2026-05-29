@@ -34,6 +34,7 @@ export function NavMain({
         <Button
           variant="outline"
           className="h-10 w-full justify-start rounded-xl border-sidebar-border bg-sidebar/30 text-sidebar-foreground hover:bg-sidebar-accent"
+          render={<Link href="/customers" />}
         >
           <Plus className="size-4" />
           Register complaint
