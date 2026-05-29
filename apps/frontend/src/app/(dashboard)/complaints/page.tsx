@@ -46,7 +46,7 @@ export default async function ComplaintsPage({
       title="Complaints"
       description="Search, monitor, and review all device complaints recorded in the live repair workflow."
       actions={
-        <Button className="rounded-xl" render={<Link href="/customers" />}>
+        <Button className="rounded-xl" render={<Link href="/complaints/new" />}>
           <Plus className="size-4" />
           New complaint
         </Button>
