@@ -9,6 +9,7 @@ async function main() {
   await prisma.complaintLog.deleteMany();
   await prisma.complaint.deleteMany();
   await prisma.party.deleteMany();
+  await prisma.appSettings.deleteMany();
   await prisma.user.deleteMany();
 
   const hashedPassword = await bcrypt.hash("admin123", 10);
@@ -18,6 +19,38 @@ async function main() {
       email: "admin@mobileshop.com",
       password: hashedPassword,
       role: "ADMIN",
+      phone: "+919876543210",
+    },
+  });
+
+  await prisma.user.create({
+    data: {
+      name: "Front Desk Staff",
+      email: "staff@mobileshop.com",
+      password: hashedPassword,
+      role: "STAFF",
+      phone: "+919812340001",
+    },
+  });
+
+  await prisma.user.create({
+    data: {
+      name: "Repair Technician",
+      email: "tech@mobileshop.com",
+      password: hashedPassword,
+      role: "TECHNICIAN",
+      phone: "+919812340002",
+    },
+  });
+
+  await prisma.appSettings.create({
+    data: {
+      shopName: "MobileShop CMS",
+      shopPhone: "+919876543210",
+      shopAddress: "Main Market Road, Bengaluru",
+      complaintPrefix: "CMP",
+      defaultCurrency: "INR",
+      enableWhatsappNotifications: false,
     },
   });
 

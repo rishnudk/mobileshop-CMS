@@ -3,6 +3,8 @@ export type AuthUser = {
   name: string;
   email: string;
   role: string;
+  phone?: string | null;
+  isActive?: boolean;
   createdAt?: string;
 };
 
@@ -36,6 +38,21 @@ export type Complaint = {
   party?: PartySummary | null;
 };
 
+export type WhatsappNotificationPreview = {
+  channel: "whatsapp";
+  mode: "mock";
+  status: "sent" | "skipped";
+  templateName: "device_ready_collection";
+  recipientPhone: string;
+  message: string;
+  reason?: string;
+};
+
+export type ComplaintStatusUpdateResult = {
+  complaint: Complaint;
+  notification: WhatsappNotificationPreview | null;
+};
+
 export type PartySummary = {
   id: string;
   type: "INDIVIDUAL" | "SHOP";
@@ -54,4 +71,30 @@ export type Party = PartySummary & {
   _count?: {
     complaints: number;
   };
+};
+
+export type StaffUser = {
+  id: string;
+  name: string;
+  email: string;
+  role: "ADMIN" | "STAFF" | "TECHNICIAN";
+  phone: string | null;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+  _count?: {
+    complaints: number;
+  };
+};
+
+export type AppSettings = {
+  id: string;
+  shopName: string;
+  shopPhone: string;
+  shopAddress: string;
+  complaintPrefix: string;
+  defaultCurrency: string;
+  enableWhatsappNotifications: boolean;
+  createdAt: string;
+  updatedAt: string;
 };

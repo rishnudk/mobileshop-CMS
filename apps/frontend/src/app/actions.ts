@@ -1,13 +1,15 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { backendRequest, getSessionToken, setSessionToken } from "@/lib/backend";
 import { BackendError } from "@/lib/backend";
-import type { Party } from "@/lib/types";
+import type { ComplaintStatusUpdateResult, Party } from "@/lib/types";
 
 export type FormState = {
   error?: string;
+  success?: string;
 };
 
 type PartyMode = "existing" | "new";
@@ -210,4 +212,169 @@ export async function registerComplaintAction(_: FormState, formData: FormData):
   }
 
   redirect(`/customers/${partyId}`);
+}
+
+export async function createUserAction(_: FormState, formData: FormData): Promise<FormState> {
+  const token = await getSessionToken();
+  if (!token) {
+    redirect("/login");
+  }
+
+  try {
+    await backendRequest("/users", {
+      method: "POST",
+      token,
+      body: {
+        name: getString(formData, "name"),
+        email: getString(formData, "email"),
+        password: getString(formData, "password"),
+        role: getString(formData, "role") || "STAFF",
+        phone: getOptionalString(formData, "phone"),
+        isActive: getString(formData, "isActive") !== "false",
+      },
+    });
+  } catch (error) {
+    if (error instanceof BackendError) {
+      return { error: error.message };
+    }
+
+    return { error: "Unable to create the staff account." };
+  }
+
+  return { success: "Staff account created successfully." };
+}
+
+export async function deleteUserAction(_: FormState, formData: FormData): Promise<FormState> {
+  const token = await getSessionToken();
+  if (!token) {
+    redirect("/login");
+  }
+
+  const userId = getString(formData, "userId");
+  if (!userId) {
+    return { error: "Missing user ID." };
+  }
+
+  try {
+    await backendRequest(`/users/${userId}`, {
+      method: "DELETE",
+      token,
+    });
+  } catch (error) {
+    if (error instanceof BackendError) {
+      return { error: error.message };
+    }
+
+    return { error: "Unable to delete the user." };
+  }
+
+  return { success: "User deleted successfully." };
+}
+
+export async function updateSettingsAction(_: FormState, formData: FormData): Promise<FormState> {
+  const token = await getSessionToken();
+  if (!token) {
+    redirect("/login");
+  }
+
+  try {
+    await backendRequest("/settings", {
+      method: "PUT",
+      token,
+      body: {
+        shopName: getString(formData, "shopName"),
+        shopPhone: getString(formData, "shopPhone"),
+        shopAddress: getString(formData, "shopAddress"),
+        complaintPrefix: getString(formData, "complaintPrefix"),
+        defaultCurrency: getString(formData, "defaultCurrency"),
+        enableWhatsappNotifications: getString(formData, "enableWhatsappNotifications") === "true",
+      },
+    });
+  } catch (error) {
+    if (error instanceof BackendError) {
+      return { error: error.message };
+    }
+
+    return { error: "Unable to update settings." };
+  }
+
+  return { success: "Settings updated successfully." };
+}
+
+export async function assignTechnicianAction(_: FormState, formData: FormData): Promise<FormState> {
+  const token = await getSessionToken();
+  if (!token) {
+    redirect("/login");
+  }
+
+  const complaintId = getString(formData, "complaintId");
+  if (!complaintId) {
+    return { error: "Missing complaint ID." };
+  }
+
+  try {
+    await backendRequest(`/complaints/${complaintId}/assign`, {
+      method: "PATCH",
+      token,
+      body: {
+        assignedTechnicianId: getOptionalString(formData, "assignedTechnicianId"),
+      },
+    });
+    revalidatePath("/complaints");
+    revalidatePath("/dashboard");
+  } catch (error) {
+    if (error instanceof BackendError) {
+      return { error: error.message };
+    }
+
+    return { error: "Unable to assign technician." };
+  }
+
+  return { success: "Technician assignment updated." };
+}
+
+export async function updateComplaintStatusAction(_: FormState, formData: FormData): Promise<FormState> {
+  const token = await getSessionToken();
+  if (!token) {
+    redirect("/login");
+  }
+
+  const complaintId = getString(formData, "complaintId");
+  const status = getString(formData, "status");
+  if (!complaintId || !status) {
+    return { error: "Complaint and status are required." };
+  }
+
+  try {
+    const result = await backendRequest<ComplaintStatusUpdateResult>(`/complaints/${complaintId}/status`, {
+      method: "PATCH",
+      token,
+      body: {
+        status,
+      },
+    });
+
+    revalidatePath("/complaints");
+    revalidatePath("/dashboard");
+
+    if (result.notification?.status === "sent") {
+      return {
+        success: `Status updated. Mock WhatsApp to ${result.notification.recipientPhone}: ${result.notification.message}`,
+      };
+    }
+
+    if (result.notification?.status === "skipped") {
+      return {
+        success: `Status updated. WhatsApp mock skipped: ${result.notification.reason ?? "not sent"}`,
+      };
+    }
+  } catch (error) {
+    if (error instanceof BackendError) {
+      return { error: error.message };
+    }
+
+    return { error: "Unable to update complaint status." };
+  }
+
+  return { success: "Complaint status updated." };
 }

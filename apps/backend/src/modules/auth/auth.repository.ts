@@ -16,6 +16,8 @@ export class AuthRepository {
         name: true,
         email: true,
         role: true,
+        phone: true,
+        isActive: true,
         createdAt: true,
       },
     });

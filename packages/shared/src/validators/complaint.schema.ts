@@ -64,3 +64,9 @@ export const updateComplaintSchema = z.object({
 });
 
 export type UpdateComplaintInput = z.infer<typeof updateComplaintSchema>;
+
+export const updateComplaintStatusSchema = z.object({
+  status: z.nativeEnum(ComplaintStatus),
+});
+
+export type UpdateComplaintStatusInput = z.infer<typeof updateComplaintStatusSchema>;

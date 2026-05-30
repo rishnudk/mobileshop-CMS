@@ -1,6 +1,8 @@
 import { NextFunction, Request, Response } from "express";
-import { createPartyComplaintSchema } from "@mobileshop/shared";
+import { ComplaintStatus } from "@prisma/client";
+import { createPartyComplaintSchema, updateComplaintStatusSchema } from "@mobileshop/shared";
 import { ComplaintService } from "./complaint.service";
+import { AuthenticatedRequest } from "../../common/middleware/auth.middleware";
 
 export class ComplaintController {
   private complaintService = new ComplaintService();
@@ -35,6 +37,57 @@ export class ComplaintController {
       res.status(201).json({
         success: true,
         data: complaint,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  assignTechnician = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const authReq = req as AuthenticatedRequest;
+      const updatedBy = authReq.user?.email ?? "system";
+
+      const complaint = await this.complaintService.assignTechnician(
+        req.params.id,
+        req.body.assignedTechnicianId ?? null,
+        updatedBy
+      );
+
+      res.status(200).json({
+        success: true,
+        data: complaint,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  updateStatus = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const parseResult = updateComplaintStatusSchema.safeParse(req.body);
+      if (!parseResult.success) {
+        res.status(400).json({
+          success: false,
+          error: {
+            message: "Validation failed",
+            details: parseResult.error.flatten().fieldErrors,
+          },
+        });
+        return;
+      }
+
+      const authReq = req as AuthenticatedRequest;
+      const updatedBy = authReq.user?.email ?? "system";
+      const result = await this.complaintService.updateStatus(
+        req.params.id,
+        parseResult.data.status as ComplaintStatus,
+        updatedBy
+      );
+
+      res.status(200).json({
+        success: true,
+        data: result,
       });
     } catch (error) {
       next(error);

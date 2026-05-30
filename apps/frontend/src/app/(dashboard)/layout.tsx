@@ -24,8 +24,10 @@ export default async function DashboardLayout({
       <AppSidebar
         variant="inset"
         user={{
+          id: user.id,
           name: user.name,
           email: user.email,
+          role: user.role,
           avatar: "",
         }}
       />

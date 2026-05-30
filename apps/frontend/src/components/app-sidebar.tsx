@@ -53,8 +53,10 @@ export function AppSidebar({
   ...props
 }: React.ComponentProps<typeof Sidebar> & {
   user: {
+    id: string;
     name: string;
     email: string;
+    role: string;
     avatar: string;
   };
 }) {

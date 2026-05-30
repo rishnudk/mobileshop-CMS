@@ -3,7 +3,7 @@ import "server-only";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
-import type { AuthUser, Complaint, Party } from "@/lib/types";
+import type { AppSettings, AuthUser, Complaint, Party, StaffUser } from "@/lib/types";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000/api/v1";
 const SESSION_COOKIE = "mobileshop_token";
@@ -114,4 +114,14 @@ export async function getPartyById(id: string) {
 export async function getComplaints() {
   const token = await getSessionToken();
   return backendRequest<Complaint[]>("/complaints", { token });
+}
+
+export async function getUsers() {
+  const token = await getSessionToken();
+  return backendRequest<StaffUser[]>("/users", { token });
+}
+
+export async function getSettings() {
+  const token = await getSessionToken();
+  return backendRequest<AppSettings>("/settings", { token });
 }

@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { Plus, Search } from "lucide-react";
 
+import { AssignTechnicianForm } from "@/components/forms/assign-technician-form";
+import { UpdateComplaintStatusForm } from "@/components/forms/update-complaint-status-form";
 import { PageShell } from "@/components/dashboard/page-shell";
 import { StatusBadge } from "@/components/dashboard/status-badge";
 import { Button } from "@/components/ui/button";
@@ -14,7 +16,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { getComplaints } from "@/lib/backend";
+import { getComplaints, getUsers, requireCurrentUser } from "@/lib/backend";
 import { formatComplaintStatus, formatDateTime } from "@/lib/format";
 
 export default async function ComplaintsPage({
@@ -22,9 +24,12 @@ export default async function ComplaintsPage({
 }: {
   searchParams?: Promise<{ q?: string }>;
 }) {
+  const currentUser = await requireCurrentUser();
   const params = (await searchParams) ?? {};
   const query = params.q?.trim().toLowerCase() ?? "";
-  const complaints = await getComplaints();
+  const [complaints, users] = await Promise.all([getComplaints(), getUsers()]);
+  const canManageComplaints = currentUser.role === "ADMIN" || currentUser.role === "STAFF";
+  const technicians = users.filter((user) => user.role === "TECHNICIAN" && user.isActive);
   const filteredComplaints = query
     ? complaints.filter((complaint) =>
         [
@@ -90,9 +95,23 @@ export default async function ComplaintsPage({
                     <TableCell>{[complaint.deviceBrand, complaint.deviceModel, complaint.deviceColor].filter(Boolean).join(" - ")}</TableCell>
                     <TableCell className="max-w-xs text-sm text-muted-foreground">{complaint.issueDescription}</TableCell>
                     <TableCell>
-                      <StatusBadge value={formatComplaintStatus(complaint.status)} />
+                      {canManageComplaints ? (
+                        <UpdateComplaintStatusForm complaintId={complaint.id} status={complaint.status} />
+                      ) : (
+                        <StatusBadge value={formatComplaintStatus(complaint.status)} />
+                      )}
                     </TableCell>
-                    <TableCell>{complaint.assignedTechnician?.name ?? "Unassigned"}</TableCell>
+                    <TableCell>
+                      {canManageComplaints ? (
+                        <AssignTechnicianForm
+                          complaintId={complaint.id}
+                          assignedTechnicianId={complaint.assignedTechnician?.id}
+                          technicians={technicians}
+                        />
+                      ) : (
+                        complaint.assignedTechnician?.name ?? "Unassigned"
+                      )}
+                    </TableCell>
                     <TableCell>{formatDateTime(complaint.createdAt)}</TableCell>
                   </TableRow>
                 ))

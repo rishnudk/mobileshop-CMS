@@ -6,6 +6,8 @@ import compression from "compression";
 import authRoutes from "./modules/auth/auth.routes";
 import partyRoutes from "./modules/parties/party.routes";
 import complaintRoutes from "./modules/complaints/complaint.routes";
+import userRoutes from "./modules/users/user.routes";
+import settingsRoutes from "./modules/settings/settings.routes";
 import { errorMiddleware } from "./common/middleware/error.middleware";
 
 const app = express();
@@ -31,6 +33,8 @@ app.get("/health", (req, res) => {
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/parties", partyRoutes);
 app.use("/api/v1/complaints", complaintRoutes);
+app.use("/api/v1/users", userRoutes);
+app.use("/api/v1/settings", settingsRoutes);
 
 // Error Handling Middleware
 app.use(errorMiddleware);
