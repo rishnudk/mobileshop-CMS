@@ -64,6 +64,7 @@ export async function loginAction(_: FormState, formData: FormData): Promise<For
     return { error: "Unable to sign in right now." };
   }
 
+  revalidatePath("/", "layout");
   redirect("/dashboard");
 }
 
