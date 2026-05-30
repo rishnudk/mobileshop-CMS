@@ -5,14 +5,19 @@
   "main": "dist/server.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
-    "build": "tsc && prisma generate",
+    "dev:worker": "wrangler dev",
+    "build": "prisma generate && tsc",
     "start": "node dist/server.js",
+    "deploy": "prisma generate && wrangler deploy",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
+    "prisma:migrate:deploy": "prisma migrate deploy",
     "prisma:seed": "ts-node-dev prisma/seed.ts"
   },
   "dependencies": {
     "@mobileshop/shared": "workspace:*",
+    "@neondatabase/serverless": "^1.1.0",
+    "@prisma/adapter-neon": "^6.19.3",
     "@prisma/client": "^6.4.1",
     "bcryptjs": "^3.0.2",
     "compression": "^1.8.0",
@@ -25,6 +30,7 @@
     "uuid": "^11.1.0"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260530.1",
     "@types/bcryptjs": "^2.4.6",
     "@types/compression": "^1.7.5",
     "@types/cors": "^2.8.17",
@@ -34,7 +40,8 @@
     "@types/node": "^22.13.4",
     "prisma": "^6.4.1",
     "ts-node-dev": "^2.0.0",
-    "typescript": "^5.7.3"
+    "typescript": "^5.7.3",
+    "wrangler": "^4.95.0"
   },
   "prisma": {
     "seed": "ts-node-dev prisma/seed.ts"
