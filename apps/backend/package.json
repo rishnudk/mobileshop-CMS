@@ -9,6 +9,7 @@
     "build": "corepack pnpm --filter @mobileshop/shared build && prisma generate && tsc",
     "start": "node dist/server.js",
     "cf:deploy": "corepack pnpm --filter @mobileshop/shared build && prisma generate && wrangler deploy",
+    "cf:version": "corepack pnpm --filter @mobileshop/shared build && prisma generate && wrangler versions upload",
     "deploy": "corepack pnpm --filter @mobileshop/shared build && prisma generate && wrangler deploy",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
