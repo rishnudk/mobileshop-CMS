@@ -18,13 +18,32 @@ if (typeof process !== "undefined" && process.versions?.node) {
 
 let _client: PrismaClient | null = null;
 
+export function initDb(rawUrl: string) {
+  if (!_client) {
+    let url = rawUrl;
+    if (!url) throw new Error("DATABASE_URL is required.");
+    
+    // Cloudflare Dashboard secrets sometimes get saved with literal quotes if copy-pasted directly from a .env file.
+    // pg-connection-string will fail to parse this and default to localhost, causing "No database host..." errors.
+    if (url.startsWith('"') && url.endsWith('"')) {
+      url = url.slice(1, -1);
+    }
+    if (url.startsWith("'") && url.endsWith("'")) {
+      url = url.slice(1, -1);
+    }
+    
+    _client = new PrismaClient({ adapter: new PrismaNeon({ connectionString: url }) });
+  }
+  return _client;
+}
+
 function getClient(): PrismaClient {
   if (!_client) {
     const url = process.env.DATABASE_URL;
     if (!url) throw new Error("DATABASE_URL is required.");
-    _client = new PrismaClient({ adapter: new PrismaNeon({ connectionString: url }) });
+    initDb(url);
   }
-  return _client;
+  return _client!;
 }
 
 // Lazy proxy — defers PrismaClient creation to the first actual request.
