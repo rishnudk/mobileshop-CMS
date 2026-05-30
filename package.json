@@ -1,6 +1,7 @@
 {
   "name": "mobileshop-cms-monorepo",
   "version": "1.0.0",
+  "packageManager": "pnpm@10.18.3",
   "private": true,
   "scripts": {
     "dev": "concurrently \"pnpm --filter @mobileshop/backend dev\" \"pnpm --filter @mobileshop/frontend dev\"",
