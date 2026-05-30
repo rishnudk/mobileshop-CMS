@@ -22,11 +22,13 @@
     "@neondatabase/serverless": "^1.1.0",
     "@prisma/adapter-neon": "^6.19.3",
     "@prisma/client": "^6.4.1",
+    "@types/ws": "^8.18.1",
     "bcryptjs": "^3.0.2",
     "dotenv": "^16.4.7",
     "hono": "^4.12.23",
     "jsonwebtoken": "^9.0.2",
-    "uuid": "^11.1.0"
+    "uuid": "^11.1.0",
+    "ws": "^8.21.0"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20260530.1",

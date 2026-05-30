@@ -1,7 +1,19 @@
+import { PrismaNeon } from "@prisma/adapter-neon";
 import { PrismaClient } from "@prisma/client";
 import * as bcrypt from "bcryptjs";
+import * as dotenv from "dotenv";
 
-const prisma = new PrismaClient();
+dotenv.config();
+
+// Configure WebSocket for Node.js (required by @neondatabase/serverless)
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const { neonConfig } = require("@neondatabase/serverless");
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+neonConfig.webSocketConstructor = require("ws");
+
+const adapter = new PrismaNeon({ connectionString: process.env.DATABASE_URL });
+const prisma = new PrismaClient({ adapter });
+
 
 async function main() {
   console.log("Seeding database...");
