@@ -29,14 +29,11 @@ export default async function LoginPage() {
               Internal staff access only
             </div>
             <div className="space-y-4">
-              <p className="text-sm font-medium uppercase tracking-[0.2em] text-slate-500">
-                Mobile Repair Shop CMS
-              </p>
-              <h1 className="max-w-xl text-4xl font-semibold tracking-tight text-slate-950 lg:text-6xl">
-                Run repairs, complaints, and staff operations from one dashboard.
+              <h1 className="text-5xl font-extrabold tracking-tight text-slate-950 sm:text-6xl lg:text-7xl">
+                City Mobile
               </h1>
-              <p className="max-w-2xl text-lg leading-8 text-slate-600">
-                Built on the implementation plan’s modular foundation so this admin surface can grow into complaint workflows, customer management, and future business modules.
+              <p className="max-w-lg text-lg leading-relaxed text-slate-600 sm:text-xl">
+                Manage your shop&apos;s repair workflows, track customer complaints, and oversee staff operations from a single unified dashboard.
               </p>
             </div>
           </div>
@@ -62,9 +59,6 @@ export default async function LoginPage() {
             </CardHeader>
             <CardContent>
               <LoginForm />
-              <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-600">
-                This login now uses the live backend JWT flow and stores the session in a secure app cookie.
-              </div>
             </CardContent>
           </Card>
         </section>
