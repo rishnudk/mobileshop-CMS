@@ -11,7 +11,7 @@ import type { HonoVariables } from "./types/hono";
 
 const app = new Hono<{ Variables: HonoVariables }>();
 
-// Standard Production Middlewares
+// Standard Production Middlewaress
 app.use("/*", cors({
   origin: "*",
   allowMethods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
