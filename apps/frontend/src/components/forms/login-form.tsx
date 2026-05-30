@@ -16,7 +16,7 @@ export function LoginForm() {
   return (
     <form action={formAction} className="space-y-5">
       <div className="space-y-2">
-        <Label htmlFor="email">Email</Label>
+        <Label htmlFor="email" className="text-slate-700">Email</Label>
         <Input
           id="email"
           name="email"
@@ -24,14 +24,22 @@ export function LoginForm() {
           placeholder="admin@mobileshop.com"
           defaultValue="admin@mobileshop.com"
           required
+          className="bg-white text-slate-900 border-slate-300 placeholder:text-slate-400 shadow-sm focus-visible:ring-primary"
         />
       </div>
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <Label htmlFor="password">Password</Label>
-          <span className="text-xs text-slate-500">JWT login enabled</span>
+          <Label htmlFor="password" className="text-slate-700">Password</Label>
         </div>
-        <Input id="password" name="password" type="password" placeholder="Enter your password" defaultValue="admin123" required />
+        <Input 
+          id="password" 
+          name="password" 
+          type="password" 
+          placeholder="Enter your password" 
+          defaultValue="admin123" 
+          required 
+          className="bg-white text-slate-900 border-slate-300 placeholder:text-slate-400 shadow-sm focus-visible:ring-primary"
+        />
       </div>
       {state.error ? (
         <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
