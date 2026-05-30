@@ -36,7 +36,7 @@ app.use("/api/v1/complaints", complaintRoutes);
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/settings", settingsRoutes);
 
-// Error Handling Middleware
+
 app.use(errorMiddleware);
 
 export default app;
