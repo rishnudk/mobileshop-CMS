@@ -1,13 +1,14 @@
-import { Router } from "express";
+import { Hono } from "hono";
 import { PartyController } from "./party.controller";
 import { authMiddleware } from "../../common/middleware/auth.middleware";
+import type { HonoVariables } from "../../types/hono";
 
-const router = Router();
+const partyRoutes = new Hono<{ Variables: HonoVariables }>();
 const controller = new PartyController();
 
-router.use(authMiddleware);
-router.get("/", controller.getParties);
-router.get("/:id", controller.getPartyById);
-router.post("/", controller.createParty);
+partyRoutes.use("/*", authMiddleware);
+partyRoutes.get("/", (c) => controller.getParties(c));
+partyRoutes.get("/:id", (c) => controller.getPartyById(c));
+partyRoutes.post("/", (c) => controller.createParty(c));
 
-export default router;
+export default partyRoutes;

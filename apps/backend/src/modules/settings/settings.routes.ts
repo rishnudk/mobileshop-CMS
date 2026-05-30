@@ -1,15 +1,14 @@
-import { Router } from "express";
-
+import { Hono } from "hono";
 import { authMiddleware } from "../../common/middleware/auth.middleware";
 import { requireRoles } from "../../common/middleware/role.middleware";
 import { SettingsController } from "./settings.controller";
+import type { HonoVariables } from "../../types/hono";
 
-const router = Router();
+const settingsRoutes = new Hono<{ Variables: HonoVariables }>();
 const controller = new SettingsController();
 
-router.use(authMiddleware);
+settingsRoutes.use("/*", authMiddleware);
+settingsRoutes.get("/", (c) => controller.getSettings(c));
+settingsRoutes.put("/", requireRoles("ADMIN"), (c) => controller.updateSettings(c));
 
-router.get("/", controller.getSettings);
-router.put("/", requireRoles("ADMIN"), controller.updateSettings);
-
-export default router;
+export default settingsRoutes;

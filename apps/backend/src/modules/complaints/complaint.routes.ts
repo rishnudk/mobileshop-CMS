@@ -1,14 +1,15 @@
-import { Router } from "express";
+import { Hono } from "hono";
 import { ComplaintController } from "./complaint.controller";
 import { authMiddleware } from "../../common/middleware/auth.middleware";
+import type { HonoVariables } from "../../types/hono";
 
-const router = Router();
+const complaintRoutes = new Hono<{ Variables: HonoVariables }>();
 const controller = new ComplaintController();
 
-router.use(authMiddleware);
-router.get("/", controller.getComplaints);
-router.post("/party/:partyId", controller.createComplaintForParty);
-router.patch("/:id/assign", controller.assignTechnician);
-router.patch("/:id/status", controller.updateStatus);
+complaintRoutes.use("/*", authMiddleware);
+complaintRoutes.get("/", (c) => controller.getComplaints(c));
+complaintRoutes.post("/party/:partyId", (c) => controller.createComplaintForParty(c));
+complaintRoutes.patch("/:id/assign", (c) => controller.assignTechnician(c));
+complaintRoutes.patch("/:id/status", (c) => controller.updateStatus(c));
 
-export default router;
+export default complaintRoutes;

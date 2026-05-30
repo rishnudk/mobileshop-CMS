@@ -1,38 +1,49 @@
-import { NextFunction, Request, Response } from "express";
+import { Context } from "hono";
 import { appSettingsSchema } from "@mobileshop/shared";
-
 import { SettingsService } from "./settings.service";
+import type { HonoVariables } from "../../types/hono";
+
+type Ctx = Context<{ Variables: HonoVariables }>;
 
 export class SettingsController {
   private settingsService = new SettingsService();
 
-  getSettings = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  getSettings = async (c: Ctx): Promise<Response> => {
     try {
       const settings = await this.settingsService.getSettings();
-      res.status(200).json({ success: true, data: settings });
-    } catch (error) {
-      next(error);
+      return c.json({ success: true, data: settings }, 200);
+    } catch (error: any) {
+      return c.json(
+        { success: false, error: { message: error.message || "Failed to fetch settings" } },
+        500
+      );
     }
   };
 
-  updateSettings = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  updateSettings = async (c: Ctx): Promise<Response> => {
     try {
-      const parseResult = appSettingsSchema.safeParse(req.body);
+      const body = await c.req.json();
+      const parseResult = appSettingsSchema.safeParse(body);
       if (!parseResult.success) {
-        res.status(400).json({
-          success: false,
-          error: {
-            message: "Validation failed",
-            details: parseResult.error.flatten().fieldErrors,
+        return c.json(
+          {
+            success: false,
+            error: {
+              message: "Validation failed",
+              details: parseResult.error.flatten().fieldErrors,
+            },
           },
-        });
-        return;
+          400
+        );
       }
 
       const settings = await this.settingsService.updateSettings(parseResult.data);
-      res.status(200).json({ success: true, data: settings });
-    } catch (error) {
-      next(error);
+      return c.json({ success: true, data: settings }, 200);
+    } catch (error: any) {
+      return c.json(
+        { success: false, error: { message: error.message || "Failed to update settings" } },
+        500
+      );
     }
   };
 }

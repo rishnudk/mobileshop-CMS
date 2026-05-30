@@ -1,6 +1,4 @@
-import { httpServerHandler } from "cloudflare:node";
 import app from "./app";
 
-app.listen(3000);
-
-export default httpServerHandler({ port: 3000 });
+// Hono's default export is a native Cloudflare Workers handler — no shims needed.
+export default app;

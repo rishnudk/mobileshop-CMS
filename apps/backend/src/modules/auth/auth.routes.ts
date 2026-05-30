@@ -1,11 +1,12 @@
-import { Router } from "express";
+import { Hono } from "hono";
 import { AuthController } from "./auth.controller";
 import { authMiddleware } from "../../common/middleware/auth.middleware";
+import type { HonoVariables } from "../../types/hono";
 
-const router = Router();
+const authRoutes = new Hono<{ Variables: HonoVariables }>();
 const controller = new AuthController();
 
-router.post("/login", controller.login);
-router.get("/me", authMiddleware, controller.getMe);
+authRoutes.post("/login", (c) => controller.login(c));
+authRoutes.get("/me", authMiddleware, (c) => controller.getMe(c));
 
-export default router;
+export default authRoutes;

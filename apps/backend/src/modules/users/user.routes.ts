@@ -1,17 +1,16 @@
-import { Router } from "express";
-
+import { Hono } from "hono";
 import { authMiddleware } from "../../common/middleware/auth.middleware";
 import { requireRoles } from "../../common/middleware/role.middleware";
 import { UserController } from "./user.controller";
+import type { HonoVariables } from "../../types/hono";
 
-const router = Router();
+const userRoutes = new Hono<{ Variables: HonoVariables }>();
 const controller = new UserController();
 
-router.use(authMiddleware);
+userRoutes.use("/*", authMiddleware);
+userRoutes.get("/", (c) => controller.getUsers(c));
+userRoutes.post("/", requireRoles("ADMIN"), (c) => controller.createUser(c));
+userRoutes.patch("/:id", requireRoles("ADMIN"), (c) => controller.updateUser(c));
+userRoutes.delete("/:id", requireRoles("ADMIN"), (c) => controller.deleteUser(c));
 
-router.get("/", controller.getUsers);
-router.post("/", requireRoles("ADMIN"), controller.createUser);
-router.patch("/:id", requireRoles("ADMIN"), controller.updateUser);
-router.delete("/:id", requireRoles("ADMIN"), controller.deleteUser);
-
-export default router;
+export default userRoutes;

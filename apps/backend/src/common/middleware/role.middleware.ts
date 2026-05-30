@@ -1,25 +1,24 @@
-import { NextFunction, Response } from "express";
-
-import { AuthenticatedRequest } from "./auth.middleware";
+import { Context, Next } from "hono";
+import type { HonoVariables } from "../../types/hono";
 
 export function requireRoles(...roles: string[]) {
-  return (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
-    if (!req.user) {
-      res.status(401).json({
-        success: false,
-        error: { message: "Unauthorized" },
-      });
-      return;
+  return async (c: Context<{ Variables: HonoVariables }>, next: Next) => {
+    const user = c.get("user");
+
+    if (!user) {
+      return c.json(
+        { success: false, error: { message: "Unauthorized" } },
+        401
+      );
     }
 
-    if (!roles.includes(req.user.role)) {
-      res.status(403).json({
-        success: false,
-        error: { message: "You do not have permission to perform this action." },
-      });
-      return;
+    if (!roles.includes(user.role)) {
+      return c.json(
+        { success: false, error: { message: "You do not have permission to perform this action." } },
+        403
+      );
     }
 
-    next();
+    await next();
   };
 }

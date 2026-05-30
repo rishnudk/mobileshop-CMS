@@ -1,29 +1,20 @@
-import { Request, Response, NextFunction } from "express";
+import { Context, Next } from "hono";
 import * as jwt from "jsonwebtoken";
+import type { HonoVariables } from "../../types/hono";
 
 const JWT_SECRET = process.env.JWT_SECRET || "fallback_secret_key";
 
-export interface AuthenticatedRequest extends Request {
-  user?: {
-    id: string;
-    email: string;
-    role: string;
-  };
-}
-
-export function authMiddleware(
-  req: Request,
-  res: Response,
-  next: NextFunction
+export async function authMiddleware(
+  c: Context<{ Variables: HonoVariables }>,
+  next: Next
 ) {
-  const authHeader = req.headers.authorization;
+  const authHeader = c.req.header("Authorization");
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    res.status(401).json({
-      success: false,
-      error: { message: "Access denied. No token provided." },
-    });
-    return;
+    return c.json(
+      { success: false, error: { message: "Access denied. No token provided." } },
+      401
+    );
   }
 
   const token = authHeader.split(" ")[1];
@@ -34,12 +25,12 @@ export function authMiddleware(
       email: string;
       role: string;
     };
-    (req as AuthenticatedRequest).user = decoded;
-    next();
+    c.set("user", decoded);
+    await next();
   } catch (error) {
-    res.status(401).json({
-      success: false,
-      error: { message: "Invalid or expired session token." },
-    });
+    return c.json(
+      { success: false, error: { message: "Invalid or expired session token." } },
+      401
+    );
   }
 }

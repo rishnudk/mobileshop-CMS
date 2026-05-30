@@ -1,55 +1,61 @@
-import { NextFunction, Request, Response } from "express";
+import { Context } from "hono";
 import { createPartySchema } from "@mobileshop/shared";
 import { PartyService } from "./party.service";
+import type { HonoVariables } from "../../types/hono";
+
+type Ctx = Context<{ Variables: HonoVariables }>;
 
 export class PartyController {
   private partyService = new PartyService();
 
-  getParties = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  getParties = async (c: Ctx): Promise<Response> => {
     try {
       const parties = await this.partyService.getParties();
-      res.status(200).json({
-        success: true,
-        data: parties,
-      });
-    } catch (error) {
-      next(error);
+      return c.json({ success: true, data: parties }, 200);
+    } catch (error: any) {
+      return c.json(
+        { success: false, error: { message: error.message || "Failed to fetch parties" } },
+        500
+      );
     }
   };
 
-  getPartyById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  getPartyById = async (c: Ctx): Promise<Response> => {
     try {
-      const party = await this.partyService.getPartyById(req.params.id);
-      res.status(200).json({
-        success: true,
-        data: party,
-      });
-    } catch (error) {
-      next(error);
+      const party = await this.partyService.getPartyById(c.req.param("id")!);
+      return c.json({ success: true, data: party }, 200);
+    } catch (error: any) {
+      return c.json(
+        { success: false, error: { message: error.message || "Failed to fetch party" } },
+        500
+      );
     }
   };
 
-  createParty = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  createParty = async (c: Ctx): Promise<Response> => {
     try {
-      const parseResult = createPartySchema.safeParse(req.body);
+      const body = await c.req.json();
+      const parseResult = createPartySchema.safeParse(body);
       if (!parseResult.success) {
-        res.status(400).json({
-          success: false,
-          error: {
-            message: "Validation failed",
-            details: parseResult.error.flatten().fieldErrors,
+        return c.json(
+          {
+            success: false,
+            error: {
+              message: "Validation failed",
+              details: parseResult.error.flatten().fieldErrors,
+            },
           },
-        });
-        return;
+          400
+        );
       }
 
       const party = await this.partyService.createParty(parseResult.data);
-      res.status(201).json({
-        success: true,
-        data: party,
-      });
-    } catch (error) {
-      next(error);
+      return c.json({ success: true, data: party }, 201);
+    } catch (error: any) {
+      return c.json(
+        { success: false, error: { message: error.message || "Failed to create party" } },
+        500
+      );
     }
   };
 }

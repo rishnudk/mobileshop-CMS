@@ -1,60 +1,57 @@
-import { Request, Response, NextFunction } from "express";
+import { Context } from "hono";
 import { AuthService } from "./auth.service";
 import { loginSchema } from "@mobileshop/shared";
-import { AuthenticatedRequest } from "../../common/middleware/auth.middleware";
+import type { HonoVariables } from "../../types/hono";
+
+type Ctx = Context<{ Variables: HonoVariables }>;
 
 export class AuthController {
   private authService = new AuthService();
 
-  login = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  login = async (c: Ctx): Promise<Response> => {
     try {
-      // Validate schema
-      const parseResult = loginSchema.safeParse(req.body);
+      const body = await c.req.json();
+      const parseResult = loginSchema.safeParse(body);
       if (!parseResult.success) {
-        res.status(400).json({
-          success: false,
-          error: {
-            message: "Validation failed",
-            details: parseResult.error.flatten().fieldErrors,
+        return c.json(
+          {
+            success: false,
+            error: {
+              message: "Validation failed",
+              details: parseResult.error.flatten().fieldErrors,
+            },
           },
-        });
-        return;
+          400
+        );
       }
 
       const result = await this.authService.login(parseResult.data);
-      res.status(200).json({
-        success: true,
-        data: result,
-      });
+      return c.json({ success: true, data: result }, 200);
     } catch (error: any) {
-      res.status(400).json({
-        success: false,
-        error: { message: error.message || "Login failed" },
-      });
+      return c.json(
+        { success: false, error: { message: error.message || "Login failed" } },
+        400
+      );
     }
   };
 
-  getMe = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  getMe = async (c: Ctx): Promise<Response> => {
     try {
-      const authReq = req as AuthenticatedRequest;
-      if (!authReq.user) {
-        res.status(401).json({
-          success: false,
-          error: { message: "Unauthorized" },
-        });
-        return;
+      const user = c.get("user");
+      if (!user) {
+        return c.json(
+          { success: false, error: { message: "Unauthorized" } },
+          401
+        );
       }
 
-      const result = await this.authService.getMe(authReq.user.id);
-      res.status(200).json({
-        success: true,
-        data: result,
-      });
+      const result = await this.authService.getMe(user.id);
+      return c.json({ success: true, data: result }, 200);
     } catch (error: any) {
-      res.status(400).json({
-        success: false,
-        error: { message: error.message || "Failed to retrieve user details" },
-      });
+      return c.json(
+        { success: false, error: { message: error.message || "Failed to retrieve user details" } },
+        400
+      );
     }
   };
 }
