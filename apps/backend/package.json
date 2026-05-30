@@ -6,9 +6,9 @@
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
     "dev:worker": "wrangler dev",
-    "build": "prisma generate && tsc",
+    "build": "corepack pnpm --filter @mobileshop/shared build && prisma generate && tsc",
     "start": "node dist/server.js",
-    "deploy": "prisma generate && wrangler deploy",
+    "deploy": "corepack pnpm --filter @mobileshop/shared build && prisma generate && wrangler deploy",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:migrate:deploy": "prisma migrate deploy",
